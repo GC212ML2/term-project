@@ -1,8 +1,9 @@
 
-
+import copy
 import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
+from sklearn import metrics
 
 from sklearn.preprocessing import StandardScaler
 
@@ -10,12 +11,9 @@ from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 from pyclustering.cluster.clarans import clarans as CLARANS
 from sklearn.cluster import DBSCAN
-from sklearn.cluster import MeanShift
+from sklearn.cluster import MeanShift, estimate_bandwidth
 
 from sklearn.metrics import silhouette_score
-
-import copy
-
 
 
 
@@ -33,6 +31,26 @@ def clarans_label_converter(labels):
     cluster_number += 1
   return outList
 
+
+
+# Purity check for latitude and longitude
+def purity_check(X, y_pred):
+
+# Make arbitrary target dataset to calculate score.
+# Seperating line to Northern and Souther california -> 35.773
+  y = np.array([], dtype=int)
+  for i in range(0, len(X)):
+    if X.iloc[i, 1] > 35.773:
+      y = np.append(y, [1])
+    else:
+      y = np.append(y, [0])
+  return purity_socre(y, y_pred)
+
+# Scoring function through purity check formula
+def purity_socre(y_true, y_pred):
+  # compute contingency matrix (also called confusion matrix)
+  contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
+  return np.sum(np.amax(contingency_matrix, axis=0)) / np.sum(contingency_matrix)
 
 
 
@@ -213,3 +231,5 @@ def brute_force(
 
 def auto_ml():
     print("auto ml")
+
+
