@@ -65,20 +65,6 @@ for i in dfs["Price"]:
     elif i == "High": lbl_price.append(3)
 
 price_list_le = ['Free', 'Low', 'Mid', 'High']
-print(len(lbl_price))
-lbl_category = []
-print("=====Category=====")
-# ['Entertainment', 'Productivity', 'Lifestyle', 'Game', 'Education', 'Welfare','Social']
-for i in dfs["Category"]:
-    if i == "Entertainment": lbl_category.append(0)
-    elif i == "Productivity": lbl_category.append(1)
-    elif i == "Lifestyle": lbl_category.append(2)
-    elif i == "Game": lbl_category.append(3)
-    elif i == "Education": lbl_category.append(4)
-    elif i == "Welfare": lbl_category.append(5)
-    elif i == "Social": lbl_category.append(6)
-
-category_list_le = ['Entertainment', 'Productivity', 'Lifestyle', 'Game', 'Education', 'Welfare','Social']
 
 
 dft = pd.DataFrame({
@@ -94,7 +80,6 @@ dft = pd.DataFrame({
     "Price" : lbl_price,
     "Rating" : dfs["Rating"],
 })
-print("dft\n", dft)
 
 print(dft)
 # 라벨 출력
@@ -121,5 +106,5 @@ print(classifier_result.best_params)
 
 
 clustering_result = FBClustering.brute_force(X, cluster_k=[10])
-print(clustering_result.best_params_)
+print(clustering_result.best_params)
 

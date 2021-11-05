@@ -70,7 +70,7 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
         df['Last Updated'] = df['L3'] + df['L1'] + df['L2']
 
-        df = df.drop(['L1','L2','L3'], axis=1)
+        df = df.drop(['LastUpdated','L1','L2','L3'], axis=1)
 
 
 
@@ -78,7 +78,7 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
     """"
     Group again with 6 groups
-    = Entertainment / Productivity / Lifestyle / Game / Education / Welfare / Social
+    = Entertainment / Productivity / Lifestyle / Game / Education / Welfare
     """
     if df.columns.tolist().count("Category") != 0:
         # Productivity
