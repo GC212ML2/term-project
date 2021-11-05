@@ -209,7 +209,3 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
 
     return dataframe, dataframe_sampling
-
-
-df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
-dfs.to_csv("dfs.csv")
