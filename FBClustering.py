@@ -207,9 +207,9 @@ def brute_force(
 
 
     class res:
-        best_params_ = {}
+        best_params = {}
 
-    res.best_params_ = {
+    res.best_params = {
         'best_scaler': best_scaler,
         'best_model' : best_model,
         'best_k': best_k_,
