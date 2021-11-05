@@ -1,7 +1,6 @@
 
 # Please download dataset: https://www.kaggle.com/gauthamp10/google-playstore-apps
-data/Google-Playstore.csv
-tmp/*
+data/*
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,pycharm,linux,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,pycharm,linux,windows,macos
