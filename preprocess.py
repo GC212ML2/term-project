@@ -87,6 +87,7 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
         df['Category'] = df['Category'].replace('Business','Productivity')
 
         # Lifestyle 
+        df['Category'] = df['Category'].replace('Social', 'Lifestyle')
         df['Category'] = df['Category'].replace('Food & Drink','Lifestyle')
         df['Category'] = df['Category'].replace('Auto & vehicles','Lifestyle')
         df['Category'] = df['Category'].replace('House & Home','Lifestyle')
@@ -130,6 +131,8 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
         df['Category'] = df['Category'].replace('Strategy','Game')
         df['Category'] = df['Category'].replace('Trivia','Game')
         df['Category'] = df['Category'].replace('Word' ,'Game')
+
+        # Education
         df['Category'] = df['Category'].replace('Educational','Education')
 
         # Welfare
