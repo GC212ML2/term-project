@@ -30,7 +30,6 @@ print(dfs.info())
 # 'Casual', 'Health & Fitness', 'Medical', 'Libraries & Demo', 'Productivity', 'Auto & Vehicles', 'Lifestyle', 'Video Players & Editors', 'Personalization', 
 # 'Simulation', 'News & Magazines', 'Adventure', 'Finance', 'Arcade', 'Role Playing', 'House & Home', 'Shopping', 'Maps & Navigation', 'Trivia', 'Travel & Local', 
 # 'Beauty', 'Photography', 'Weather', 'Sports', 'Art & Design', 'Parenting', 'Racing', 'Puzzle', 'Events', 'Music', 'Dating', 'Educational', 'Comics', 'Board', 'Card', 'Word', 'Casino']
-dfs.drop(["Category"], axis=1, inplace=True)
 
 
 
@@ -55,7 +54,7 @@ lbl_editors_choice = editors_choice_le.fit_transform(dfs['Editors Choice'])
 # Last Updated
 ## 날짜데이터
 ### 대기중
-dfs.drop(["Last Updated"], axis=1, inplace=True)
+# dfs.drop(["Last Updated"], axis=1, inplace=True)
 
 
 print("=====Content Rating=====")
@@ -80,15 +79,28 @@ for i in dfs["Price"]:
     elif i == "High": lbl_price.append(3)
 
 price_list_le = ['Free', 'Low', 'Mid', 'High']
+print(len(lbl_price))
+lbl_category = []
+print("=====Category=====")
+# ['Entertainment', 'Productivity', 'Lifestyle', 'Game', 'Education', 'Welfare','Social']
+for i in dfs["Category"]:
+    if i == "Entertainment": lbl_category.append(0)
+    elif i == "Productivity": lbl_category.append(1)
+    elif i == "Lifestyle": lbl_category.append(2)
+    elif i == "Game": lbl_category.append(3)
+    elif i == "Education": lbl_category.append(4)
+    elif i == "Welfare": lbl_category.append(5)
+    elif i == "Social": lbl_category.append(6)
 
+category_list_le = ['Entertainment', 'Productivity', 'Lifestyle', 'Game', 'Education', 'Welfare','Social']
 
 
 dft = pd.DataFrame({
-    # "Category" : dfs["Category"],
+    "Category" : lbl_category,
     "Rating Count" : dfs["Rating Count"],
     "Maximum Installs" : dfs["Maximum Installs"],
     "Free" : lbl_free,
-    # "Last Updated" : dfs["Last Updated"],
+    "Last Updated" : dfs["Last Updated"],
     "Content Rating" : lbl_content_rating,
     "Ad Supported" : lbl_ad,
     "In App Purchases" : lbl_in_app_purchase,
@@ -96,7 +108,7 @@ dft = pd.DataFrame({
     "Price" : lbl_price,
     "Rating" : dfs["Rating"],
 })
-
+print("dft\n", dft)
 
 from sklearn.tree import DecisionTreeClassifier
 
@@ -111,6 +123,7 @@ classifier_result = FBClassifier.brute_force(X,
 )
 print(classifier_result.best_params)
 
-
+'''
 clustering_result = FBClustering.brute_force(X)
 print(clustering_result.best_params_)
+'''

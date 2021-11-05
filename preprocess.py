@@ -70,15 +70,15 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
         df['Last Updated'] = df['L3'] + df['L1'] + df['L2']
 
-        df = df.drop(['LastUpdated','L1','L2','L3'], axis=1)
+        df = df.drop(['L1','L2','L3'], axis=1)
 
 
 
 
 
     """"
-    Group again with 5 groups
-    = Entertainment / Productivity / Lifestyle / Game / Education / Welfare
+    Group again with 6 groups
+    = Entertainment / Productivity / Lifestyle / Game / Education / Welfare / Social
     """
     if df.columns.tolist().count("Category") != 0:
         # Productivity
@@ -211,5 +211,6 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
     return dataframe, dataframe_sampling
 
 
-df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
-dfs.to_csv("dfs.csv")
+df, dfs = csv_to_dataframe("C:/Users/YOONSU/OneDrive/바탕 화면/3-2/머신러닝/Term-Project/data/Google-Playstore.csv")
+# dfs.to_csv("dfs.csv")
+print(dfs)
