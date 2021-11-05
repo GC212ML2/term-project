@@ -59,7 +59,7 @@ def brute_force(
     scalers=[None, StandardScaler()],
     models=[
         KMeans(n_clusters = 2), # n_clusters = k
-        GaussianMixture(), # n_components = k
+        # GaussianMixture(), # n_components = k
         DBSCAN(eps=0.5, min_samples=5)
     ],
     cluster_k = [3],
