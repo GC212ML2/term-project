@@ -4,4 +4,4 @@
  - AutoML use Gradient Descent like algorithm to find the best model and hyperparamenters.
 
 # Credits
- - 김도균, 김범석, 라윤수, 권순완
+ - 김도균, 김재욱, 라윤수, 권순완
