@@ -90,21 +90,27 @@ print(in_app_purchase_le.classes_)
 print(editors_choice_le.classes_)
 print(price_list_le)
 
-
-from sklearn.tree import DecisionTreeClassifier
-
 X = dft.drop(["Rating"], axis=1)
 print(X)
-classifier_result = FBClassifier.brute_force(X, 
-    dft["Rating"],
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+
+classifier_result = FBClassifier.brute_force(X,
+    dft.Rating,
     models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
+        # DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        # SVC(kernel='rbf',probability=True)
     ],
     cv_k=[2,3,4,5,],
 )
+
 print(classifier_result.best_params)
+print(classifier_result.best_model)
+FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
 
-
+'''
 clustering_result = FBClustering.brute_force(X, cluster_k=[10])
 print(clustering_result.best_params)
-
+'''

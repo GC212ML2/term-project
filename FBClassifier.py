@@ -1,4 +1,4 @@
-
+import numpy as np
 from pandas.core.frame import DataFrame
 
 from sklearn.preprocessing import StandardScaler
@@ -7,14 +7,18 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import MaxAbsScaler
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
+import matplotlib.pyplot as plt
 
-
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, auc
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.preprocessing import label_binarize
 
 
 def brute_force(
@@ -23,7 +27,7 @@ def brute_force(
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"), 
-        LogisticRegression(solver='lbfgs'), LogisticRegression(solver='newton-cg'), LogisticRegression(solver='liblinear'), LogisticRegression(solver='sag'), LogisticRegression(solver='saga'), 
+        RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
         SVC(kernel='rbf',probability=True),SVC(kernel='rbf', gamma = 0.001,probability=True),SVC(kernel='rbf', gamma = 0.01,probability=True),SVC(kernel='rbf', gamma = 0.1,probability=True),SVC(kernel='rbf', gamma = 1,probability=True),SVC(kernel='rbf', gamma = 10,probability=True),
         SVC(kernel='poly',probability=True),SVC(kernel='poly', gamma = 0.001,probability=True),SVC(kernel='poly', gamma = 0.01,probability=True),SVC(kernel='poly', gamma = 0.1,probability=True),SVC(kernel='poly', gamma = 1,probability=True),SVC(kernel='poly', gamma = 10,probability=True),
         SVC(kernel='sigmoid',probability=True),SVC(kernel='sigmoid', gamma = 0.001,probability=True),SVC(kernel='sigmoid', gamma = 0.01,probability=True),SVC(kernel='sigmoid', gamma = 0.1,probability=True),SVC(kernel='sigmoid', gamma = 1,probability=True),SVC(kernel='sigmoid', gamma = 10,probability=True),
@@ -113,7 +117,59 @@ def brute_force(
     return res
 
 
+def plot_roc_curve(X, y, model, title):
+    X = model.best_scaler.fit_transform(X)
 
+    # Calculate False Positive Rate, True Positive Rate
+    y_unique, counts = np.unique(y, return_counts=True)
+    y = label_binarize(y, classes=y_unique)
+    n_classes = y.shape[1]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+
+    clf = OneVsRestClassifier(model.best_model)
+    y_pred = clf.fit(X_train, y_train).predict_proba(X_test)
+
+    # Compute ROC curve and ROC area for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+
+
+    # First aggregate all false positive rates
+    all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+
+    # Then interpolate all ROC curves at this points
+    mean_tpr = np.zeros_like(all_fpr)
+    for i in range(n_classes):
+        mean_tpr += np.interp(all_fpr, fpr[i], tpr[i])
+
+    # Finally average it and compute AUC
+    mean_tpr /= n_classes
+
+    fpr["macro"] = all_fpr
+    tpr["macro"] = mean_tpr
+    roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+    # Plot result
+    plt.figure(figsize=(12,10))
+    plt.plot(fpr[0], tpr[0], linestyle='--', color='orange', label='Class 0 vs Rest')
+    plt.plot(fpr[1], tpr[1], linestyle='--', color='green', label='Class 1 vs Rest')
+    plt.plot(fpr[2], tpr[2], linestyle='--', color='cyan', label='Class 2 vs Rest')
+    plt.plot(fpr[3], tpr[3], linestyle='--', color='yellow', label='Class 3 vs Rest')
+    plt.plot(fpr[4], tpr[4], linestyle='--', color='pink', label='Class 4 vs Rest')
+
+    plt.plot(fpr["macro"], tpr["macro"], color='r', label='ROC curve (area = %0.2f)' % roc_auc["macro"])
+    plt.plot([0, 1], [0, 1], color='black')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve for ' + str(title), fontsize=20)
+    plt.legend()
+    plt.show()
 
 
 def auto_ml():
