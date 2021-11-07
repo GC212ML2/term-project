@@ -4,14 +4,15 @@ from sklearn.preprocessing import LabelEncoder
 import FBClassifier
 import FBClustering
 
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
 # dfs.to_csv("dfs.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
 dfs = pd.read_csv("./tmp/dfs.csv", index_col=0)
-# 추가 정리
-dfs.drop(["index"], axis=1, inplace=True)
+dfs.drop(["index"], axis=1, inplace=True) # 추가 정리
 
 print(dfs)
 print(dfs.info())
@@ -89,6 +90,37 @@ print(content_rating_le.classes_)
 print(in_app_purchase_le.classes_)
 print(editors_choice_le.classes_)
 print(price_list_le)
+
+
+
+
+
+# dft.drop(["Ad Supported"], axis=1, inplace=True) # 추가 정리
+# dft.drop(["In App Purchases"], axis=1, inplace=True) # 추가 정리
+
+
+# 연관성 없음
+dft.drop(["Content Rating"], axis=1, inplace=True) # 추가 정리
+dft.drop(["Editors Choice"], axis=1, inplace=True) # 추가 정리
+dft.drop(["Last Updated"], axis=1, inplace=True) # 추가 정리
+dft.drop(["Price"], axis=1, inplace=True) # 추가 정리
+dft.drop(["Free"], axis=1, inplace=True) # 추가 정리
+
+
+
+
+
+
+# Plot Heatmap
+def heatmap(X, title):
+    # Calculate correlation matrix and plot them
+    plt.figure(figsize=(12,10))
+    plt.title('Heatmap of ' + str(title), fontsize=20)
+    g=sns.heatmap(X[X.corr().index].corr(), annot=True, cmap="YlGnBu")
+
+    plt.show()
+
+heatmap(dft, "Heatmap test")
 
 
 from sklearn.tree import DecisionTreeClassifier
