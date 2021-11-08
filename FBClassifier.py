@@ -16,7 +16,7 @@ from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, roc_auc_score
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import label_binarize
 
@@ -26,7 +26,7 @@ def brute_force(
     y:DataFrame,
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"), 
+        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
         RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
         SVC(kernel='rbf',probability=True),SVC(kernel='rbf', gamma = 0.001,probability=True),SVC(kernel='rbf', gamma = 0.01,probability=True),SVC(kernel='rbf', gamma = 0.1,probability=True),SVC(kernel='rbf', gamma = 1,probability=True),SVC(kernel='rbf', gamma = 10,probability=True),
         SVC(kernel='poly',probability=True),SVC(kernel='poly', gamma = 0.001,probability=True),SVC(kernel='poly', gamma = 0.01,probability=True),SVC(kernel='poly', gamma = 0.1,probability=True),SVC(kernel='poly', gamma = 1,probability=True),SVC(kernel='poly', gamma = 10,probability=True),
@@ -88,7 +88,7 @@ def brute_force(
             # Find best k value of CV
             for i in range(0, len(cv_k)):
                 kfold = KFold(n_splits=cv_k[i], shuffle=isCVShuffle)
-                score_result = cross_val_score(models[m], X, y, cv=kfold)
+                score_result = cross_val_score(models[m], X, y, scoring="accuracy", cv=kfold)
                 # if mean value of scores are bigger than max variable,
                 # update new options(model, scaler, k) to best options
                 if maxScore < score_result.mean():
@@ -118,14 +118,35 @@ def brute_force(
 
 
 def plot_roc_curve(X, y, model, title):
+    '''
+    # for binary target
     X = model.best_scaler.fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
+    clf = model.best_model
+    prob = clf.fit(X_train,y_train).predict_proba(X_test)
+    fpr, tpr, _ = roc_curve(y_test, prob[:, 1])
+    roc_auc = roc_auc_score(y_test, prob[:, 1])
+
+    # Plot result
+    plt.figure(figsize=(12,10))
+    plt.plot(fpr, tpr, color='b', label='ROC curve (area = %0.2f)' % roc_auc)
+    plt.plot([0, 1], [0, 1], color='r', linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve for ' + str(title), fontsize=20)
+
+    plt.legend()
+    plt.show()
+    '''
+
+    # for multiclass target
     # Calculate False Positive Rate, True Positive Rate
+    X = model.best_scaler.fit_transform(X)
     y_unique, counts = np.unique(y, return_counts=True)
     y = label_binarize(y, classes=y_unique)
     n_classes = y.shape[1]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
 
     clf = OneVsRestClassifier(model.best_model)
     y_pred = clf.fit(X_train, y_train).predict_proba(X_test)
@@ -138,7 +159,6 @@ def plot_roc_curve(X, y, model, title):
     for i in range(n_classes):
         fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
-
 
     # First aggregate all false positive rates
     all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
@@ -161,7 +181,6 @@ def plot_roc_curve(X, y, model, title):
     plt.plot(fpr[1], tpr[1], linestyle='--', color='green', label='Class 1 vs Rest')
     plt.plot(fpr[2], tpr[2], linestyle='--', color='cyan', label='Class 2 vs Rest')
     plt.plot(fpr[3], tpr[3], linestyle='--', color='yellow', label='Class 3 vs Rest')
-    plt.plot(fpr[4], tpr[4], linestyle='--', color='pink', label='Class 4 vs Rest')
 
     plt.plot(fpr["macro"], tpr["macro"], color='r', label='ROC curve (area = %0.2f)' % roc_auc["macro"])
     plt.plot([0, 1], [0, 1], color='black')
@@ -174,3 +193,4 @@ def plot_roc_curve(X, y, model, title):
 
 def auto_ml():
     print("auto ml")
+

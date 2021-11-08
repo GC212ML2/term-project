@@ -4,9 +4,7 @@ from sklearn.preprocessing import LabelEncoder
 import FBClassifier
 import FBClustering
 
-
-
-# df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
+# df, dfs = csv_to_dataframe("./tmp/dfs.csv")
 # dfs.to_csv("dfs.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
 dfs = pd.read_csv("./tmp/dfs.csv", index_col=0)
@@ -41,7 +39,8 @@ lbl_in_app_purchase = in_app_purchase_le.fit_transform(dfs['In App Purchases'])
 editors_choice_le = LabelEncoder()
 lbl_editors_choice = editors_choice_le.fit_transform(dfs['Editors Choice'])
 
-
+rating_le = LabelEncoder()
+lbl_rating = rating_le.fit_transform(dfs['Rating'])
 
 print("=====Content Rating=====")
 # Ordering 주려면 직접 안코딩해야 함.
@@ -78,8 +77,10 @@ dft = pd.DataFrame({
     "In App Purchases" : lbl_in_app_purchase,
     "Editors Choice" : lbl_editors_choice,
     "Price" : lbl_price,
-    "Rating" : dfs["Rating"],
+    "Rating" : lbl_rating,
 })
+
+dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
 
 print(dft)
 # 라벨 출력
@@ -92,22 +93,27 @@ print(price_list_le)
 
 X = dft.drop(["Rating"], axis=1)
 print(X)
+print(dft.Rating.value_counts())
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 classifier_result = FBClassifier.brute_force(X,
     dft.Rating,
     models=[
-        RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
-        # DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        # RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
+        # DecisionTreeClassifier(criterion="gini"), #DecisionTreeClassifier(criterion="entropy"),
         # SVC(kernel='rbf',probability=True)
+        GradientBoostingClassifier()
+        # KNeighborsClassifier(n_neighbors=2)
     ],
     cv_k=[2,3,4,5,],
 )
 
 print(classifier_result.best_params)
-print(classifier_result.best_model)
+print(classifier_result.best_score)
 FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
 
 '''
