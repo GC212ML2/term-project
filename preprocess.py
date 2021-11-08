@@ -182,8 +182,9 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
     df = df.dropna(axis=0)
     df = df.reset_index()
+    df = df.drop('index',axis=1)
 
-
+    df = df.astype({'Rating':'int64'})
 
 
 
