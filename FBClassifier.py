@@ -7,8 +7,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import MaxAbsScaler
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
@@ -16,7 +17,7 @@ from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_curve, auc, roc_auc_score
+from sklearn.metrics import roc_curve, roc_auc_score, auc, classification_report
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import label_binarize
 
@@ -27,11 +28,9 @@ def brute_force(
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        RandomForestClassifier(criterion="gini"), RandomForestClassifier(criterion="entropy"),
-        SVC(kernel='rbf',probability=True),SVC(kernel='rbf', gamma = 0.001,probability=True),SVC(kernel='rbf', gamma = 0.01,probability=True),SVC(kernel='rbf', gamma = 0.1,probability=True),SVC(kernel='rbf', gamma = 1,probability=True),SVC(kernel='rbf', gamma = 10,probability=True),
-        SVC(kernel='poly',probability=True),SVC(kernel='poly', gamma = 0.001,probability=True),SVC(kernel='poly', gamma = 0.01,probability=True),SVC(kernel='poly', gamma = 0.1,probability=True),SVC(kernel='poly', gamma = 1,probability=True),SVC(kernel='poly', gamma = 10,probability=True),
-        SVC(kernel='sigmoid',probability=True),SVC(kernel='sigmoid', gamma = 0.001,probability=True),SVC(kernel='sigmoid', gamma = 0.01,probability=True),SVC(kernel='sigmoid', gamma = 0.1,probability=True),SVC(kernel='sigmoid', gamma = 1,probability=True),SVC(kernel='sigmoid', gamma = 10,probability=True),
-        SVC(kernel='linear',probability=True),SVC(kernel='linear', gamma = 0.001,probability=True),SVC(kernel='linear', gamma = 0.01,probability=True),SVC(kernel='linear', gamma = 0.1,probability=True),SVC(kernel='linear', gamma = 1,probability=True),SVC(kernel='linear', gamma = 10,probability=True),
+        GaussianNB(), KNeighborsClassifier(),
+        LogisticRegression(solver="lbfgs", max_iter=100, multi_class="ovr", class_weight='balanced'),
+        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced')
     ],
     cv_k=[2,3,4,5,6,7,8,9,10],
     isCVShuffle = True,
@@ -118,28 +117,6 @@ def brute_force(
 
 
 def plot_roc_curve(X, y, model, title):
-    '''
-    # for binary target
-    X = model.best_scaler.fit_transform(X)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-    clf = model.best_model
-    prob = clf.fit(X_train,y_train).predict_proba(X_test)
-    fpr, tpr, _ = roc_curve(y_test, prob[:, 1])
-    roc_auc = roc_auc_score(y_test, prob[:, 1])
-
-    # Plot result
-    plt.figure(figsize=(12,10))
-    plt.plot(fpr, tpr, color='b', label='ROC curve (area = %0.2f)' % roc_auc)
-    plt.plot([0, 1], [0, 1], color='r', linestyle='--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve for ' + str(title), fontsize=20)
-
-    plt.legend()
-    plt.show()
-    '''
-
     # for multiclass target
     # Calculate False Positive Rate, True Positive Rate
     X = model.best_scaler.fit_transform(X)
@@ -158,7 +135,7 @@ def plot_roc_curve(X, y, model, title):
 
     for i in range(n_classes):
         fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
-        roc_auc[i] = auc(fpr[i], tpr[i])
+        # roc_auc[i] = auc(fpr[i], tpr[i])
 
     # First aggregate all false positive rates
     all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
@@ -173,8 +150,8 @@ def plot_roc_curve(X, y, model, title):
 
     fpr["macro"] = all_fpr
     tpr["macro"] = mean_tpr
-    roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
-
+    # roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+    weighted_roc_auc = roc_auc_score(y_test, y_pred, multi_class="ovr", average="weighted")
     # Plot result
     plt.figure(figsize=(12,10))
     plt.plot(fpr[0], tpr[0], linestyle='--', color='orange', label='Class 0 vs Rest')
@@ -182,7 +159,7 @@ def plot_roc_curve(X, y, model, title):
     plt.plot(fpr[2], tpr[2], linestyle='--', color='cyan', label='Class 2 vs Rest')
     plt.plot(fpr[3], tpr[3], linestyle='--', color='yellow', label='Class 3 vs Rest')
 
-    plt.plot(fpr["macro"], tpr["macro"], color='r', label='ROC curve (area = %0.2f)' % roc_auc["macro"])
+    plt.plot(fpr["macro"], tpr["macro"], color='r', label='ROC curve (area = %0.2f)' % weighted_roc_auc)
     plt.plot([0, 1], [0, 1], color='black')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
@@ -190,6 +167,17 @@ def plot_roc_curve(X, y, model, title):
     plt.legend()
     plt.show()
 
+def clf_report(X, y, model):
+    X = model.best_scaler.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    clf = model.best_model
+    clf.fit(X_train, y_train)
+    pred_test = clf.predict(X_test)
+    report = classification_report(y_test, pred_test, zero_division=0)
+
+    return report
 
 def auto_ml():
     print("auto ml")
