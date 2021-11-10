@@ -28,10 +28,11 @@ def brute_force(
     y:DataFrame,
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        LogisticRegression(solver="lbfgs", max_iter=100, multi_class="ovr", class_weight='balanced'),
-        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
-        GaussianNB(), GradientBoostingClassifier()
+        # DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        # LogisticRegression(solver="lbfgs", max_iter=100, multi_class="ovr", class_weight='balanced'),
+        # LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+        # GaussianNB(),
+        GradientBoostingClassifier()
     ],
     cv_k=[2,3,4,5,6,7,8,9,10],
     isCVShuffle = True,
@@ -51,7 +52,8 @@ def brute_force(
       - StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler as default.
     - `models`: array
       - Model functions to fitting data and prediction. This can be modified by user.
-      - DecisionTreeClassifier, LogisticRegression, SVC as default with hyperparameters.
+      - DecisionTreeClassifier, LogisticRegression, GaussianNB, GradientBoostingClassifier
+        as default with hyperparameters.
     - `k`: array
       - Cross validation parameter. Default value is [2,3,4,5,6,7,8,9,10].
 

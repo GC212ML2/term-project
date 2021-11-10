@@ -80,7 +80,7 @@ dft = pd.DataFrame({
     "Rating" : lbl_rating,
 })
 
-dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
+# dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
 
 print(dft)
 # 라벨 출력
@@ -96,12 +96,28 @@ print(X)
 
 print(dft.Rating.value_counts())
 
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+
+bestfeatures = SelectKBest(score_func=chi2, k=len(dft.columns)-1)
+fit = bestfeatures.fit(X,dft.Rating)
+dfcolumns = pd.DataFrame(X.columns)
+dfscores = pd.DataFrame(fit.scores_)
+
+featureScores = pd.concat([dfcolumns,dfscores], axis=1)
+featureScores.columns = ['Col', 'Score']
+print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
+
+# select top 4 best features
+dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
+'''
 classifier_result = FBClassifier.brute_force(X, dft.Rating)
 
 print(classifier_result.best_params)
 print(classifier_result.best_score)
 print(FBClassifier.clf_report(X, dft.Rating, classifier_result))
 FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
+'''
 
 '''
 clustering_result = FBClustering.brute_force(X, cluster_k=[10])
