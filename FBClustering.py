@@ -338,8 +338,6 @@ def auto_ml(
     models_len = len(models)
     cluster_k_len = len(cluster_k)
 
-    # print(cluster_k_len)
-    # print(cluster_k)
 
     # 0. Create memorize table for memoization
     mem_table = [[[0 for col in range( cluster_k_len ) ] for row in range( models_len )] for col in range( scalers_len ) ]
@@ -375,24 +373,19 @@ def auto_ml(
         #    and pick another arbitrary point (theta = p2)
 
         def check_gradient(target_gradient_theta, point_val, max_len):
-            # print("-------------")
-            # print(point_val+1, end=" / ")
-            # print(max_len)
+
             result = 0
             if target_gradient_theta > 0 and point_val+1 != max_len:
-                # print("gradient ++")
                 # if point_val+1 == max_len => out of range
                 # then, get arbitrary point from 0 to len(target)
                 result = random.randrange(point_val + 1, max_len)
 
             elif target_gradient_theta < 0 and point_val != 0:
-                # print("gradient --")
                 # if point_val == 0 => out of range
                 # then, get arbitrary point from 0 to len(target)
                 result = random.randrange(0, point_val)
             
             else:
-                # print("gradient = 0")
                 result = random.randrange(0, max_len)
 
             return result
@@ -402,18 +395,6 @@ def auto_ml(
         p2.scalers_idx = check_gradient(gradient_theta1, p1.scalers_idx, scalers_len)
         p2.models_idx = check_gradient(gradient_theta2, p1.models_idx, models_len)
         p2.cluster_k_idx = check_gradient(gradient_theta3, p1.cluster_k_idx, cluster_k_len)
-
-        # print("First pick p1")
-        # print(p1.scalers_idx)
-        # print(p1.models_idx)
-        # print(p1.cluster_k_idx)
-
-        # print("First pick p2")
-        # print(p2.scalers_idx)
-        # print(p2.models_idx)
-        # print(p2.cluster_k_idx)
-
-
 
 
         # 2. Calculate score(J(theta)) of each theta(point)
@@ -464,7 +445,6 @@ def auto_ml(
             mem_table[p1.scalers_idx][p1.models_idx][p1.cluster_k_idx] = p1_score
 
 
-
         if mem_table[p2.scalers_idx][p2.models_idx][p2.cluster_k_idx] != 0:
             p2_score = mem_table[p2.scalers_idx][p2.models_idx][p2.cluster_k_idx]
         else:
@@ -506,10 +486,6 @@ def auto_ml(
             mem_table[p2.scalers_idx][p2.models_idx][p2.cluster_k_idx] = p2_score
 
 
-
-        # print("Scores")
-        # print(p1_score)
-        # print(p2_score)
 
         # Save point parameter what have best score
         if p1_score > p2_score:
@@ -553,14 +529,9 @@ def auto_ml(
         gradient_theta2 = update_gradient_value(change_of_cost, change_of_theta2)
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
-        # print("Gradient")
-        # print(gradient_theta1)
-        # print(gradient_theta2)
-        # print(gradient_theta3)
 
 
         # Prepare for next gradient (change theta 1 to new position)
-
         def set_new_point(gradient_theta, compare1, compare2):
             result_idx = 0
             if gradient_theta > 0:
@@ -578,12 +549,6 @@ def auto_ml(
         p1.cluster_k_idx = set_new_point(gradient_theta3, p1.cluster_k_idx, p2.cluster_k_idx)
 
 
-        # print("Trial: ", end="")
-        # print(trial)
-        # print(p1.scalers_idx)
-        # print(p1.models_idx)
-        # print(p1.cluster_k_idx)
-        # print()
 
     class res:
         best_params = {}

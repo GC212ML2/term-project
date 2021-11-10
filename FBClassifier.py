@@ -70,8 +70,6 @@ def brute_force(
       - Represent the score of the `best_params`.
     """
 
-    print("Total trials: ", len(scalers) * len(models) * len(cv_k))
-
     # Initialize variables
     maxScore = -1.0
     best_scaler = None
@@ -401,24 +399,18 @@ def auto_ml(
         #    and pick another arbitrary point (theta = p2)
 
         def check_gradient(target_gradient_theta, point_val, max_len):
-            # print("-------------")
-            # print(point_val+1, end=" / ")
-            # print(max_len)
             result = 0
             if target_gradient_theta > 0 and point_val+1 != max_len:
-                # print("gradient ++")
                 # if point_val+1 == max_len => out of range
                 # then, get arbitrary point from 0 to len(target)
                 result = random.randrange(point_val + 1, max_len)
 
             elif target_gradient_theta < 0 and point_val != 0:
-                # print("gradient --")
                 # if point_val == 0 => out of range
                 # then, get arbitrary point from 0 to len(target)
                 result = random.randrange(0, point_val)
             
             else:
-                # print("gradient = 0")
                 result = random.randrange(0, max_len)
 
             return result
@@ -428,18 +420,6 @@ def auto_ml(
         p2.scalers_idx = check_gradient(gradient_theta1, p1.scalers_idx, scalers_len)
         p2.models_idx = check_gradient(gradient_theta2, p1.models_idx, models_len)
         p2.cv_k_idx = check_gradient(gradient_theta3, p1.cv_k_idx, cv_k_len)
-
-        # print("First pick p1")
-        # print(p1.scalers_idx)
-        # print(p1.models_idx)
-        # print(p1.cv_k_idx)
-
-        # print("First pick p2")
-        # print(p2.scalers_idx)
-        # print(p2.models_idx)
-        # print(p2.cv_k_idx)
-
-
 
 
         # 2. Calculate score(J(theta)) of each theta(point)
@@ -472,9 +452,6 @@ def auto_ml(
             # 2-1. Memoization
             mem_table[p2.scalers_idx][p2.models_idx][p2.cv_k_idx] = p2_score    
 
-        # print("Scores")
-        # print(p1_score)
-        # print(p2_score)
 
         # Save point parameter what have best score
         if p1_score > p2_score:
@@ -495,9 +472,6 @@ def auto_ml(
         if thresh_score != None and max_score > thresh_score: break
 
 
-
-
-
         # Calcuate gradient
         # 각 세타값에 대해 계산하고, 해당 기울기를 기준으로 다음 세타값을 잡음
         change_of_cost = p2_score - p1_score
@@ -516,11 +490,6 @@ def auto_ml(
         gradient_theta2 = update_gradient_value(change_of_cost, change_of_theta2)
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
-        # print("Gradient")
-        # print(gradient_theta1)
-        # print(gradient_theta2)
-        # print(gradient_theta3)
-
 
         # Prepare for next gradient (change theta 1 to new position)
 
@@ -535,18 +504,10 @@ def auto_ml(
             return result_idx
 
 
-
         p1.scalers_idx = set_new_point(gradient_theta1, p1.scalers_idx, p2.scalers_idx)
         p1.models_idx = set_new_point(gradient_theta2, p1.models_idx, p2.models_idx)
         p1.cv_k_idx = set_new_point(gradient_theta3, p1.cv_k_idx, p2.cv_k_idx)
 
-
-        # print("Trial: ", end="")
-        # print(trial)
-        # print(p1.scalers_idx)
-        # print(p1.models_idx)
-        # print(p1.cv_k_idx)
-        # print()
 
     class res:
         best_params = {}
