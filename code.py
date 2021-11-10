@@ -4,12 +4,15 @@ from sklearn.preprocessing import LabelEncoder
 import FBClassifier
 import FBClustering
 
+from timeit import default_timer as timer
+from datetime import timedelta
+
 from matplotlib import pyplot as plt
 import seaborn as sns
 
 
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
-# dfs.to_csv("dfs.csv")
+# # dfs.to_csv("dfs.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
 dfs = pd.read_csv("./tmp/dfs.csv", index_col=0)
 dfs.drop(["index"], axis=1, inplace=True) # 추가 정리
@@ -91,20 +94,8 @@ print(in_app_purchase_le.classes_)
 print(editors_choice_le.classes_)
 print(price_list_le)
 
-
-
-
-
-# dft.drop(["Ad Supported"], axis=1, inplace=True) # 추가 정리
-# dft.drop(["In App Purchases"], axis=1, inplace=True) # 추가 정리
-
-
-# 연관성 없음
-dft.drop(["Content Rating"], axis=1, inplace=True) # 추가 정리
-dft.drop(["Editors Choice"], axis=1, inplace=True) # 추가 정리
-dft.drop(["Last Updated"], axis=1, inplace=True) # 추가 정리
-dft.drop(["Price"], axis=1, inplace=True) # 추가 정리
-dft.drop(["Free"], axis=1, inplace=True) # 추가 정리
+# Feature Selection
+dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
 
 
 
@@ -120,23 +111,87 @@ def heatmap(X, title):
 
     plt.show()
 
-heatmap(dft, "Heatmap test")
+# heatmap(dft, "Heatmap test")
+
+
+
+
+
 
 
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 X = dft.drop(["Rating"], axis=1)
 print(X)
-classifier_result = FBClassifier.brute_force(X, 
-    dft["Rating"],
+
+# start = timer()
+
+# classifier_result = FBClassifier.brute_force(X, 
+#     dft["Rating"],
+#     models=[
+#         KNeighborsClassifier(n_neighbors=3),
+#         KNeighborsClassifier(n_neighbors=5),
+#         KNeighborsClassifier(n_neighbors=7),
+#     ],
+#     cv_k=[2,4,6],
+# )
+
+# end = timer()
+# print("Execution time :", timedelta(seconds=end-start))
+
+# print(classifier_result.best_params)
+# print(classifier_result.best_score)
+
+
+
+
+
+
+
+
+
+classifier_result = FBClassifier.auto_ml(
+    X,
+    dfs["Rating"],
     models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        KNeighborsClassifier(n_neighbors=3),
+        KNeighborsClassifier(n_neighbors=5),
+        KNeighborsClassifier(n_neighbors=7),
     ],
-    cv_k=[2,3,4,5,],
+    cv_k=[2,4,6],
+    max_iter = 1000,
 )
-print(classifier_result.best_params)
 
 
-clustering_result = FBClustering.brute_force(X, cluster_k=[10])
-print(clustering_result.best_params)
 
+
+
+
+
+
+
+
+
+
+
+
+# # Performance Testing code.
+# total_score = 0
+# start = timer()
+# for i in range(0, 30):
+#     classifier_result = FBClassifier.random_search(
+#         X,
+#         dfs["Rating"],
+#         models=[
+#             KNeighborsClassifier(n_neighbors=3),
+#             KNeighborsClassifier(n_neighbors=5),
+#             KNeighborsClassifier(n_neighbors=7),
+#         ],
+#         cv_k=[2,4,6],
+#         max_iter = 1000,
+#     )
+#     total_score += classifier_result
+# end = timer()
+# print("Execution time :", timedelta(seconds=end-start))
+# print("Score: ", total_score / 30)
