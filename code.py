@@ -4,8 +4,6 @@ from sklearn.preprocessing import LabelEncoder
 import FBClassifier
 import FBClustering
 
-
-
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
 # dfs.to_csv("dfs.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
@@ -41,7 +39,8 @@ lbl_in_app_purchase = in_app_purchase_le.fit_transform(dfs['In App Purchases'])
 editors_choice_le = LabelEncoder()
 lbl_editors_choice = editors_choice_le.fit_transform(dfs['Editors Choice'])
 
-
+rating_le = LabelEncoder()
+lbl_rating = rating_le.fit_transform(dfs['Rating'])
 
 print("=====Content Rating=====")
 # Ordering 주려면 직접 안코딩해야 함.
@@ -78,8 +77,10 @@ dft = pd.DataFrame({
     "In App Purchases" : lbl_in_app_purchase,
     "Editors Choice" : lbl_editors_choice,
     "Price" : lbl_price,
-    "Rating" : dfs["Rating"],
+    "Rating" : lbl_rating,
 })
+
+# dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
 
 print(dft)
 # 라벨 출력
@@ -90,21 +91,35 @@ print(in_app_purchase_le.classes_)
 print(editors_choice_le.classes_)
 print(price_list_le)
 
-
-from sklearn.tree import DecisionTreeClassifier
-
 X = dft.drop(["Rating"], axis=1)
 print(X)
-classifier_result = FBClassifier.brute_force(X, 
-    dft["Rating"],
-    models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-    ],
-    cv_k=[2,3,4,5,],
-)
+
+print(dft.Rating.value_counts())
+
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
+
+bestfeatures = SelectKBest(score_func=chi2, k=len(dft.columns)-1)
+fit = bestfeatures.fit(X,dft.Rating)
+dfcolumns = pd.DataFrame(X.columns)
+dfscores = pd.DataFrame(fit.scores_)
+
+featureScores = pd.concat([dfcolumns,dfscores], axis=1)
+featureScores.columns = ['Col', 'Score']
+print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
+
+# select top 4 best features
+dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
+
+classifier_result = FBClassifier.brute_force(X, dft.Rating)
+
 print(classifier_result.best_params)
+print('best score :', classifier_result.best_score)
+print(FBClassifier.clf_report(X, dft.Rating, classifier_result))
+FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
 
 
+'''
 clustering_result = FBClustering.brute_force(X, cluster_k=[10])
 print(clustering_result.best_params)
-
+'''

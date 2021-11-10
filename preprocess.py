@@ -45,7 +45,6 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
     if df.columns.tolist().count("Installs") != 0:
         df.Installs = df.Installs.str.replace(',','')
         df.Installs = df.Installs.str.replace('+','')
-        df.Installs = df.Installs.str.replace('Free','0')
         df['Installs'] = pd.to_numeric(df['Installs'])
 
     # Replace 'LastUpdated' to YYYYMMDD format
@@ -164,29 +163,27 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
 
 
-
     """
-    Binning (Rating) : There are values of 1-10
-    x = Rating
+        Binning (Rating) : There are values of 1-4
+        x = Rating
+        1 : -0.1 <= x < 0.1
+        2 : 0.1 <= x < 1.66
+        3 : 1.66 <= x < 3.33
+        4 : 3.33 <= x < 5.1
+        """
 
-    1 : x < 0.5
-    2 : 0.5 <= x < 1.0
-    3 : 1.0 <= x < 1.5
-    4 : 1.5 <= x < 2.0
-    5 : 2.0 <= x < 2.5
-    6 : 2.5 <= x < 3.0
-    7 : 3.0 <= x < 3.5
-    8 : 3.5 <= x < 4.0
-    9 : 4.0 <= x < 4.5
-    10 : 4.5 <= x
-    """
-    bins = [-0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.1] 
-    label = ['1','2','3','4','5','6','7','8','9','10']
+    bins = [-0.1, 0.1, 1.66, 3.33, 5.1]
+    label = ['1', '2', '3', '4']
+
     binning = pd.cut(df['Rating'], bins, labels=label)
-    df = df.drop('Rating', axis = 1)
+    df = df.drop('Rating', axis=1)
     df['Rating'] = binning
 
+    df = df.dropna(axis=0)
+    df = df.reset_index()
+    df = df.drop('index', axis=1)
 
+    df = df.astype({'Rating': 'int64'})
 
 
 
