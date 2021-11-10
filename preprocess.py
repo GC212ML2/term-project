@@ -162,15 +162,14 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
 
 
-
     """
-        Binning (Rating) : There are values of 1-4
-        x = Rating
-        1 : -0.1 <= x < 0.1
-        2 : 0.1 <= x < 1.66
-        3 : 1.66 <= x < 3.33
-        4 : 3.33 <= x < 5.1
-        """
+    Binning (Rating) : There are values of 1-4
+    x = Rating
+    1 : -0.1 <= x < 0.1
+    2 : 0.1 <= x < 1.66
+    3 : 1.66 <= x < 3.33
+    4 : 3.33 <= x < 5.1
+    """
 
     bins = [-0.1, 0.1, 1.66, 3.33, 5.1]
     label = ['1', '2', '3', '4']
@@ -181,8 +180,8 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
     df = df.dropna(axis=0)
     df = df.reset_index()
-    df = df.drop('index', axis=1)
 
+    df = df.drop('index', axis=1)
     df = df.astype({'Rating': 'int64'})
 
 
@@ -191,8 +190,6 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
     target = ['Rating']
     X = df.drop(target, axis = 1)
     y = df[target]
-
-
 
 
 
