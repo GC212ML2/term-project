@@ -28,10 +28,10 @@ def brute_force(
     y:DataFrame,
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
-        # DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        # LogisticRegression(solver="lbfgs", max_iter=100, multi_class="ovr", class_weight='balanced'),
-        # LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
-        # GaussianNB(),
+        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
+        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+        GaussianNB(),
         GradientBoostingClassifier()
     ],
     cv_k=[2,3,4,5,6,7,8,9,10],

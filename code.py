@@ -110,14 +110,14 @@ print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
 
 # select top 4 best features
 dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
-'''
+
 classifier_result = FBClassifier.brute_force(X, dft.Rating)
 
 print(classifier_result.best_params)
-print(classifier_result.best_score)
+print('best score :', classifier_result.best_score)
 print(FBClassifier.clf_report(X, dft.Rating, classifier_result))
 FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
-'''
+
 
 '''
 clustering_result = FBClustering.brute_force(X, cluster_k=[10])
