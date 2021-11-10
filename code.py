@@ -96,7 +96,7 @@ print(X)
 
 print(dft.Rating.value_counts())
 
-classifier_result = FBClassifier.brute_force(X, dft.Rating,)
+classifier_result = FBClassifier.brute_force(X, dft.Rating)
 
 print(classifier_result.best_params)
 print(classifier_result.best_score)

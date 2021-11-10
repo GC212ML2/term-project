@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from pandas.core.frame import DataFrame
 
 from sklearn.preprocessing import StandardScaler
@@ -9,7 +10,7 @@ from sklearn.preprocessing import MaxAbsScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
@@ -28,9 +29,9 @@ def brute_force(
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        GaussianNB(), KNeighborsClassifier(),
         LogisticRegression(solver="lbfgs", max_iter=100, multi_class="ovr", class_weight='balanced'),
-        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced')
+        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+        GaussianNB(), GradientBoostingClassifier()
     ],
     cv_k=[2,3,4,5,6,7,8,9,10],
     isCVShuffle = True,
@@ -135,7 +136,6 @@ def plot_roc_curve(X, y, model, title):
 
     for i in range(n_classes):
         fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
-        # roc_auc[i] = auc(fpr[i], tpr[i])
 
     # First aggregate all false positive rates
     all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
@@ -150,7 +150,6 @@ def plot_roc_curve(X, y, model, title):
 
     fpr["macro"] = all_fpr
     tpr["macro"] = mean_tpr
-    # roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
     weighted_roc_auc = roc_auc_score(y_test, y_pred, multi_class="ovr", average="weighted")
     # Plot result
     plt.figure(figsize=(12,10))
@@ -175,9 +174,10 @@ def clf_report(X, y, model):
     clf = model.best_model
     clf.fit(X_train, y_train)
     pred_test = clf.predict(X_test)
-    report = classification_report(y_test, pred_test, zero_division=0)
+    report = classification_report(y_test, pred_test, zero_division=0, output_dict=True)
+    weighted_avg = pd.DataFrame(report).T.loc['weighted avg', :]
 
-    return report
+    return weighted_avg
 
 def auto_ml():
     print("auto ml")
