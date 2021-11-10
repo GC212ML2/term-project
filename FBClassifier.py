@@ -17,9 +17,9 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
 import random
+import copy
+
 import matplotlib.pyplot as plt
-
-
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_curve, roc_auc_score, auc, classification_report
@@ -38,6 +38,8 @@ def brute_force(
     is_cv_shuffle = True,
 ):
     """
+    Brute Force Search
+    ----------
     - Find the best parameter what has the best score.
     - This function use `Brute Force` method with memoization
 
@@ -60,11 +62,11 @@ def brute_force(
 
     Returns
     ----------
-    - `best_params_`: dictionary type of results.
-    - `best_scaler_`: Scaler what has best score.
-    - `best_model_`: Model what has best score.
-    - `best_cv_k_`: k value in K-fold CV what has best score.
-    - `best_score_`: double
+    - `best_params`: dictionary type of results.
+    - `best_scaler`: Scaler what has best score.
+    - `best_model`: Model what has best score.
+    - `best_cv_k`: k value in K-fold CV what has best score.
+    - `best_score`: double
       - Represent the score of the `best_params`.
     """
 
@@ -92,9 +94,10 @@ def brute_force(
                 # update new options(model, scaler, k) to best options
                 if maxScore < score_result.mean():
                     maxScore = score_result.mean()
-                    best_scaler = scalers[n]
-                    best_model = models[m]
-                    best_cv_k_ = cv_k[i]
+                    
+                    best_scaler = copy.deepcopy(scalers[n])
+                    best_model = copy.deepcopy(models[m])
+                    best_cv_k_ = copy.deepcopy(cv_k[i])
 
 
 
@@ -192,9 +195,11 @@ def random_search(
     cv_k=[2,3,4,5,6,7,8,9,10],
     is_cv_shuffle = True,
     thresh_score = None,
-    max_iter = 100,
+    max_iter = 50,
 ):
     """
+    Random Search
+    ----------
     - Find the best parameter what has the best score.
     - This function use `Random Search` method with memoization
 
@@ -222,10 +227,10 @@ def random_search(
     Returns
     ----------
     - `best_params_`: dictionary type of results.
-    - `best_scaler_`: Scaler what has best score.
-    - `best_model_`: Model what has best score.
-    - `best_cv_k_`: k value in K-fold CV what has best score.
-    - `best_score_`: double
+    - `best_scaler`: Scaler what has best score.
+    - `best_model`: Model what has best score.
+    - `best_cv_k`: k value in K-fold CV what has best score.
+    - `best_score`: double
       - Represent the score of the `best_params`.
     """
 
@@ -258,7 +263,10 @@ def random_search(
             score = mem_table[scalers_idx][models_idx][cv_k_idx]
         else:
             # if not, calculate score of theta
-            p1_X = scalers[scalers_idx].fit_transform(X)
+            if scalers[scalers_idx] != None:
+                p1_X = scalers[scalers_idx].fit_transform(X)
+            else:
+                p1_X = X
             kfold = KFold(n_splits=cv_k[cv_k_idx], shuffle=is_cv_shuffle)
             score = cross_val_score(models[models_idx], p1_X, y, cv=kfold).mean()
             # 2-1. Memoization
@@ -316,6 +324,8 @@ def auto_ml(
     max_iter = 100,
 ):
     """
+    Auto ML for Classifier
+    ----------
     - Find the best parameter what has the best score.
     - This function use `Auto ML` method. This is similar to the Gradient Descent.
     - This function use memoization technique for faster calculation.
@@ -343,11 +353,11 @@ def auto_ml(
 
     Returns
     ----------
-    - `best_params_`: dictionary type of results.
-    - `best_scaler_`: Scaler what has best score.
-    - `best_model_`: Model what has best score.
-    - `best_cv_k_`: k value in K-fold CV what has best score.
-    - `best_score_`: double
+    - `best_params`: dictionary type of results.
+    - `best_scaler`: Scaler what has best score.
+    - `best_model`: Model what has best score.
+    - `best_cv_k`: k value in K-fold CV what has best score.
+    - `best_score`: double
       - Represent the score of the `best_params`.
     """
 
@@ -441,7 +451,10 @@ def auto_ml(
             p1_score = mem_table[p1.scalers_idx][p1.models_idx][p1.cv_k_idx]
         else:
             # if not, calculate score of theta
-            p1_X = scalers[p1.scalers_idx].fit_transform(X)
+            if scalers[p1.scalers_idx] != None:
+                p1_X = scalers[p1.scalers_idx].fit_transform(X)
+            else:
+                p1_X = X
             kfold = KFold(n_splits=cv_k[p1.cv_k_idx], shuffle=is_cv_shuffle)
             p1_score = cross_val_score(models[p1.models_idx], p1_X, y, cv=kfold).mean()
             # 2-1. Memoization
@@ -450,7 +463,10 @@ def auto_ml(
         if mem_table[p2.scalers_idx][p2.models_idx][p2.cv_k_idx] != 0:
             p2_score = mem_table[p2.scalers_idx][p2.models_idx][p2.cv_k_idx]
         else:
-            p2_X = scalers[p2.scalers_idx].fit_transform(X)
+            if scalers[p1.scalers_idx] != None:
+                p2_X = scalers[p2.scalers_idx].fit_transform(X)
+            else:
+                p2_X = X
             kfold = KFold(n_splits=cv_k[p2.cv_k_idx], shuffle=is_cv_shuffle)
             p2_score = cross_val_score(models[p2.models_idx], p2_X, y, cv=kfold).mean()
             # 2-1. Memoization
@@ -555,12 +571,12 @@ def auto_ml(
   
 def logo():
     print("")
-    print("        /‾‾‾‾‾‾‾\    /‾‾‾‾/  /‾‾‾‾/\/‾‾‾‾‾‾‾‾‾‾‾‾/\/‾‾‾‾‾‾‾‾‾‾‾‾‾/\     /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾/\/‾‾‾‾‾/\   ")
-    print("       /         \  /    /  /    / /            / /             / /    /                  / /     / /   ")
-    print("      /    /\    /\/    /  /    / /\‾‾/    /\‾‾\ /    /‾‾‾/    / /    /    /‾/    /‾/    / /     / /    ")
-    print("     /    / /   / /    /  /    / /  ‾/    / /‾‾‾/    /   /    / /    /    / /    / /    / /     / /     ")
-    print("    /     ‾‾   / /    /__/    / /   /    / /   /    /___/    / /    /    / /    / /    / /     /_/____  ")
-    print("   /    /‾/   / /            / /   /    / /   /             / /    /    / /    / /    / /            /\ ")
-    print("  /____/ /___/ /____________/ /   /____/ /   /_____________/ /    /____/ /____/ /____/ /____________/ / ")
-    print("  \____\ \___\/\____________\/    \____\/    \_____________\/     \____\ \____\ \____\/ \___________\/  ")
-    print("                                                                                    Version: 2021.11.10 ")
+    print("        /‾‾‾‾‾‾\      /‾‾‾\   /‾‾‾‾/\/‾‾‾‾‾‾‾‾‾‾‾\  /‾‾‾‾‾‾‾‾‾‾‾‾\       /‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\  /‾‾‾‾\     ")
+    print("       /        \    /    /\ /    / /            /\/             /\     /                  /\/     /\    ")
+    print("      /    /\    \  /    /  /    / /\‾‾/    /\‾‾\ /    /‾‾‾/    / /    /    /‾/    /‾/    / /     / /    ")
+    print("     /    / /    / /    /  /    / /  ‾/    / /‾‾‾/    /   /    / /    /    / /    / /    / /     / /     ")
+    print("    /     ‾‾    / /    /__/    / /   /    / /   /    /___/    / /    /    / /    / /    / /     / /      ")
+    print("   /    /‾/    / /            / /   /    / /   /             / /    /    / /    / /    / /      ‾‾‾‾‾‾/\ ")
+    print("  /____/ /____/ /____________/ /   /____/ /   /_____________/ /    /____/ /____/ /____/ /____________/ / ")
+    print("  \____\ \____\/\____________\/    \____\/    \_____________\/     \____\ \____\ \____\/ \___________\/  ")
+    print("                                                                    for Classifier / Version: 2021.11.10 ")
