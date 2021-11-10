@@ -12,9 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import MaxAbsScaler
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
@@ -36,10 +33,6 @@ def brute_force(
     scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
     models=[
         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
-        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
-        GaussianNB(),
-        GradientBoostingClassifier()
     ],
     cv_k=[2,3,4,5,6,7,8,9,10],
     is_cv_shuffle = True,
@@ -59,8 +52,7 @@ def brute_force(
       - StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler as default.
     - `models`: array
       - Model functions to fitting data and prediction. This can be modified by user.
-      - DecisionTreeClassifier, LogisticRegression, GaussianNB, GradientBoostingClassifier
-        as default with hyperparameters.
+      - DecisionTreeClassifier(gini, entropy) as default with hyperparameters.
     - `cv_k`: array
       - Cross validation parameter. Default value is [2,3,4,5,6,7,8,9,10].
     - `is_cv_shuffle`
@@ -217,7 +209,7 @@ def random_search(
       - StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler as default.
     - `models`: array
       - Model functions to fitting data and prediction. This can be modified by user.
-      - DecisionTreeClassifier, LogisticRegression, SVC as default with hyperparameters.
+      - DecisionTreeClassifier(gini, entropy) as default with hyperparameters.
     - `cv_k`: array
       - Cross validation parameter. Default value is [2,3,4,5,6,7,8,9,10].
     - `is_cv_shuffle`
@@ -339,7 +331,7 @@ def auto_ml(
       - StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler as default.
     - `models`: array
       - Model functions to fitting data and prediction. This can be modified by user.
-      - DecisionTreeClassifier, LogisticRegression, SVC as default with hyperparameters.
+      - DecisionTreeClassifier(gini, entropy) as default with hyperparameters.
     - `cv_k`: array
       - Cross validation parameter. Default value is [2,3,4,5,6,7,8,9,10].
     - `is_cv_shuffle`
@@ -572,8 +564,3 @@ def logo():
     print("  /____/ /___/ /____________/ /   /____/ /   /_____________/ /    /____/ /____/ /____/ /____________/ / ")
     print("  \____\ \___\/\____________\/    \____\/    \_____________\/     \____\ \____\ \____\/ \___________\/  ")
     print("                                                                                    Version: 2021.11.10 ")
-=======
-def auto_ml():
-    print("auto ml")
-
-
