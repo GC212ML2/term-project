@@ -4,7 +4,9 @@ from sklearn.preprocessing import LabelEncoder
 import FBClassifier
 import FBClustering
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
 
 from timeit import default_timer as timer
 from datetime import timedelta
@@ -127,18 +129,6 @@ print(price_list_le)
 
 
 
-classifier_result = FBClassifier.auto_ml(
-    X,
-    dfs["Rating"],
-    models=[
-        KNeighborsClassifier(n_neighbors=3),
-        KNeighborsClassifier(n_neighbors=5),
-        KNeighborsClassifier(n_neighbors=7),
-    ],
-    cv_k=[2,4,6],
-    max_iter = 1000,
-)
-
 
 
 # # Performance Testing code.
@@ -185,7 +175,18 @@ print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
 # select top 4 best features
 dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
 
-classifier_result = FBClassifier.brute_force(X, dft.Rating)
+classifier_result = FBClassifier.auto_ml(
+    X,
+    dfs["Rating"],
+    models=[
+        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
+        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+        GaussianNB(),
+        GradientBoostingClassifier()
+    ],
+    max_iter = 500,
+)
 
 print(classifier_result.best_params)
 print('best score :', classifier_result.best_score)
@@ -197,13 +198,13 @@ FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.
 
 
 # Plot Heatmap
-def heatmap(X, title):
-    # Calculate correlation matrix and plot them
-    plt.figure(figsize=(12,10))
-    plt.title('Heatmap of ' + str(title), fontsize=20)
-    g=sns.heatmap(X[X.corr().index].corr(), annot=True, cmap="YlGnBu")
+# def heatmap(X, title):
+#     # Calculate correlation matrix and plot them
+#     plt.figure(figsize=(12,10))
+#     plt.title('Heatmap of ' + str(title), fontsize=20)
+#     g=sns.heatmap(X[X.corr().index].corr(), annot=True, cmap="YlGnBu")
 
-    plt.show()
+#     plt.show()
 
 # heatmap(dft, "Heatmap test")
 
