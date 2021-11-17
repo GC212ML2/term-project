@@ -1,3 +1,6 @@
+automl_report_clustering.txt
+automl_report_classifier.txt
+
 
 # Please download dataset: https://www.kaggle.com/gauthamp10/google-playstore-apps
 data/*

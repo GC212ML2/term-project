@@ -319,7 +319,7 @@ def auto_ml(
     cv_k=[2,3,4,5,6,7,8,9,10],
     is_cv_shuffle = True,
     thresh_score = None,
-    max_iter = 100,
+    max_iter = 50,
 ):
     """
     Auto ML for Classifier
@@ -347,7 +347,7 @@ def auto_ml(
     - `thresh_score`
       - Default is None. If, algorithm find the score what is higher than thresh_score, then stop and terminate searching.
     - `max_iter`
-      - Default is 100. This is meaning that how many iterations in searching loop.
+      - Default is 50. This is meaning that how many iterations in searching loop.
 
     Returns
     ----------
