@@ -25,12 +25,12 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
     ### 2. Drop the dirty values
     # Fill NaN of Rating & RatingCount with mean
 
+    df['Rating']  = df['Rating'].astype(float)
     df['Rating'].dropna(inplace=True)
 
     if df.columns.tolist().count("Rating Count") != 0:
         df['Rating Count']  = df['Rating Count'].astype(float)
-        avg = round(df['Rating Count'].mean(),1)
-        df['Rating Count'].fillna(avg,inplace=True)
+        df['Rating Count'].dropna(inplace=True)
 
     # Replace the values of 'ContentRating'
     if df.columns.tolist().count("Content Rating") != 0:
@@ -154,9 +154,6 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
         binning = pd.cut(df['Price'], bins, labels=label)
         df = df.drop('Price', axis = 1)
         df['Price'] = binning
-
-    # Drop the rest of NaN values
-    df = df.dropna(axis=1)
 
 
 

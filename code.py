@@ -25,7 +25,7 @@ import seaborn as sns
 
 
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
-# # dfs.to_csv("dfs.csv")
+# dfs.to_csv("dfs.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
 dfs = pd.read_csv("./tmp/dfs.csv", index_col=0)
 dfs.drop(["index"], axis=1, inplace=True) # 추가 정리
