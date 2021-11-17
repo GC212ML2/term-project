@@ -256,7 +256,7 @@ def auto_ml(
       - KMeans, GaussianMixture, DBSCAN(eps=0.5, min_samples=5) as default with hyperparameters.
       - This parameter is compatible with `KMeans, DBSCAN`.
     - `cluster_k`: array
-      - The umber of cluster. Default value is [2,3,4,5,6,7,8,9,10].
+      - The number of cluster. Default value is [2,3,4,5,6,7,8,9,10].
       - This can be modified by user.
     - `thresh_score`: float
       - Default is None. If, algorithm find the score what is higher than thresh_score, then stop and terminate searching.
