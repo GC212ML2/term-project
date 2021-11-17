@@ -316,16 +316,16 @@ def random_search(
 
 
 def auto_ml(
-        X: DataFrame,
-        y: DataFrame,
-        scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
-        models=[
-            DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        ],
-        cv_k=[2, 3, 4, 5, 6, 7, 8, 9, 10],
-        is_cv_shuffle=True,
-        thresh_score=None,
-        max_iter=50,
+    X:DataFrame,
+    y:DataFrame,
+    scalers=[StandardScaler(), RobustScaler(), MinMaxScaler(), MaxAbsScaler()],
+    models=[
+        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+    ],
+    cv_k=[2,3,4,5,6,7,8,9,10],
+    is_cv_shuffle = True,
+    thresh_score = None,
+    max_iter = 50,
 ):
     """
     Auto ML for Classifier
@@ -471,6 +471,7 @@ def auto_ml(
         # If, score get higher score than thresh, terminate gradient searching
         if thresh_score != None and max_score > thresh_score: break
 
+          
         # 3. Calcuate gradient of each theta(point).
         #    with using above theta value, set another theta(point).
         change_of_cost = p2_score - p1_score
@@ -489,6 +490,7 @@ def auto_ml(
         gradient_theta2 = update_gradient_value(change_of_cost, change_of_theta2)
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
+        
         # 4. Prepare for next gradient (change theta 1 to new position)
         def set_new_point(gradient_theta, compare1, compare2):
             result_idx = 0

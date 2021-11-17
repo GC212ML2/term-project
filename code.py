@@ -198,9 +198,10 @@ plt.show()
 #     # cluster_k=[4],
 #     scalers=[
 #         None,
-#         StandardScaler(),
-#         RobustScaler(),
-#         MinMaxScaler(),
+#         StandardScaler(), 
+#         RobustScaler(), 
+#         MinMaxScaler(), 
+
 #         MaxAbsScaler()
 #     ],
 # )
@@ -218,13 +219,13 @@ plt.show()
 # start = timer()
 
 # clustering_result = FBClustering.auto_ml(
-#     X,
+#     X, 
 #     # cluster_k=[4],
 #     scalers=[
 #         None,
-#         StandardScaler(),
-#         RobustScaler(),
-#         MinMaxScaler(),
+#         StandardScaler(), 
+#         RobustScaler(), 
+#         MinMaxScaler(), 
 #         MaxAbsScaler()
 #     ],
 # )

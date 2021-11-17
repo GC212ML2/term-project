@@ -33,19 +33,22 @@ def clarans_label_converter(labels):
 
 # Scoring function through purity check formula
 def purity_score(y_true, y_pred):
-    # compute contingency matrix (also called confusion matrix)
-    contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
-    return np.sum(np.amax(contingency_matrix, axis=0)) / np.sum(contingency_matrix)
+  # compute contingency matrix (also called confusion matrix)
+  contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
+  return np.sum(np.amax(contingency_matrix, axis=0)) / np.sum(contingency_matrix)
+
+
+
 
 
 def brute_force(
-        X: DataFrame,
-        scalers=[None, StandardScaler()],
-        models=[
-            KMeans(n_clusters=2),
-            DBSCAN(eps=0.5, min_samples=5)
-        ],
-        cluster_k=[2, 3, 4, 5, 6, 7, 8, 9, 10],
+    X:DataFrame,
+    scalers=[None, StandardScaler()],
+    models=[
+        KMeans(n_clusters = 2),
+        DBSCAN(eps=0.5, min_samples=5)
+    ],
+    cluster_k = [2,3,4,5,6,7,8,9,10],
 ):
     """
     Brute Force Search
@@ -207,16 +210,19 @@ def brute_force(
     return res
 
 
+
+
+
 def auto_ml(
-        X: DataFrame,
-        scalers=[None, StandardScaler()],
-        models=[
-            KMeans(n_clusters=2),
-            DBSCAN(eps=0.5, min_samples=5),
-        ],
-        cluster_k=[2, 3, 4, 5, 6, 7, 8, 9, 10],
-        thresh_score=None,
-        max_iter=50,
+    X:DataFrame,
+    scalers=[None, StandardScaler()],
+    models=[
+        KMeans(n_clusters = 2),
+        DBSCAN(eps=0.5, min_samples=5),
+    ],
+    cluster_k = [2,3,4,5,6,7,8,9,10],
+    thresh_score = None,
+    max_iter = 50,
 ):
     """
     Auto ML for Clustering
@@ -351,6 +357,7 @@ def auto_ml(
         p2.models_idx = check_gradient(gradient_theta2, p1.models_idx, models_len)
         p2.cluster_k_idx = check_gradient(gradient_theta3, p1.cluster_k_idx, cluster_k_len)
 
+
         # 2. Calculate score(J(theta)) of each theta(point)
         p1_score = 0
         p2_score = 0
@@ -455,6 +462,7 @@ def auto_ml(
         # If, score get higher score than thresh, terminate gradient searching
         if thresh_score != None and max_score > thresh_score: break
 
+
         # 3. Calcuate gradient of each theta(point).
         #    with using above theta value, set another theta(point).
         change_of_cost = p2_score - p1_score
@@ -473,6 +481,7 @@ def auto_ml(
         gradient_theta2 = update_gradient_value(change_of_cost, change_of_theta2)
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
+
         # 4. Prepare for next gradient (change theta 1 to new position)
         def set_new_point(gradient_theta, compare1, compare2):
             result_idx = 0
@@ -484,10 +493,12 @@ def auto_ml(
                 result_idx = compare1
             return result_idx
 
+
         # Set new theta1 for the next calculation
         p1.scalers_idx = set_new_point(gradient_theta1, p1.scalers_idx, p2.scalers_idx)
         p1.models_idx = set_new_point(gradient_theta2, p1.models_idx, p2.models_idx)
         p1.cluster_k_idx = set_new_point(gradient_theta3, p1.cluster_k_idx, p2.cluster_k_idx)
+
 
     # Return the result
     class res:
