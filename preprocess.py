@@ -25,6 +25,7 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
     ### 2. Drop the dirty values
     # Fill NaN of Rating & RatingCount with mean
 
+
     df['Rating']  = df['Rating'].astype(float)
     df['Rating'].dropna(inplace=True)
 
