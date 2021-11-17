@@ -3,12 +3,6 @@ from preprocess import csv_to_dataframe
 from sklearn.preprocessing import LabelEncoder
 
 import FBClassifier
-
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
-
 import FBClustering
 
 from sklearn.preprocessing import StandardScaler
@@ -25,9 +19,9 @@ import seaborn as sns
 
 
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
-# dfs.to_csv("dfs.csv")
+# dfs.to_csv("dfs2.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
-dfs = pd.read_csv("./tmp/dfs.csv", index_col=0)
+dfs = pd.read_csv("./tmp/dfs4.csv", index_col=0)
 dfs.drop(["index"], axis=1, inplace=True) # 추가 정리
 
 print(dfs)
@@ -58,8 +52,8 @@ lbl_in_app_purchase = in_app_purchase_le.fit_transform(dfs['In App Purchases'])
 editors_choice_le = LabelEncoder()
 lbl_editors_choice = editors_choice_le.fit_transform(dfs['Editors Choice'])
 
-rating_le = LabelEncoder()
-lbl_rating = rating_le.fit_transform(dfs['Rating'])
+# rating_le = LabelEncoder()
+# lbl_rating = rating_le.fit_transform(dfs['Rating'])
 
 print("=====Content Rating=====")
 # Ordering 주려면 직접 안코딩해야 함.
@@ -96,7 +90,7 @@ dft = pd.DataFrame({
     "In App Purchases" : lbl_in_app_purchase,
     "Editors Choice" : lbl_editors_choice,
     "Price" : lbl_price,
-    "Rating" : lbl_rating,
+    "Rating" : dfs["Rating"],
 })
 
 # dft = dft[['Category','Maximum Installs','Ad Supported','In App Purchases','Rating']]
@@ -120,7 +114,10 @@ print(price_list_le)
 
 
 X = dft.drop(["Rating"], axis=1)
+y = dft["Rating"]
 print(X)
+print(y)
+
 
 print(dft.Rating.value_counts())
 
@@ -139,29 +136,29 @@ print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
 # select top 4 best features
 dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
 
-classifier_result = FBClassifier.auto_ml(
-    X,
-    dfs["Rating"],
-    models=[
-        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-        LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
-        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
-        GaussianNB(),
-        GradientBoostingClassifier()
-    ],
-    max_iter = 30,
-)
+# classifier_result = FBClassifier.auto_ml(
+#     X,
+#     dft["Rating"],
+#     models=[
+#         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+#         LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
+#         LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+#         GaussianNB(),
+#         GradientBoostingClassifier()
+#     ],
+#     max_iter = 30,
+# )
 
-print(classifier_result.best_params)
-print('best score :', classifier_result.best_score)
-print(FBClassifier.clf_report(X, dft.Rating, classifier_result))
-FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
-
-
+# print(classifier_result.best_params)
+# print('best score :', classifier_result.best_score)
+# print(FBClassifier.clf_report(X, dft.Rating, classifier_result))
+# FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.best_model)
 
 
 
-# Plot Heatmap
+
+
+# # Plot Heatmap
 # def heatmap(X, title):
 #     # Calculate correlation matrix and plot them
 #     plt.figure(figsize=(12,10))
@@ -176,52 +173,124 @@ FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.
 
 
 
-# ===============================================================
-# ===============================================================
-# ===============================================================
+
+
+
+
+
+
+
+print(dft)
+
+def plot_grid(xlist, ylist, colors, title, xlabel, ylabel):
+    plt.figure(figsize=(17,17))
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    group1x = []
+    group1y = []
+    group2x = []
+    group2y = []
+    group3x = []
+    group3y = []
+    group4x = []
+    group4y = []
+    
+    for i in range(0, len(xlist)):
+        color = 'ro'
+        if colors[i] == 0: 
+            group1x.append(xlist[i])
+            group1y.append(ylist[i])
+        if colors[i] == 1:
+            group2x.append(xlist[i])
+            group2y.append(ylist[i])
+        if colors[i] == 2:
+            group3x.append(xlist[i])
+            group3y.append(ylist[i])
+        if colors[i] == 3: 
+            group4x.append(xlist[i])
+            group4y.append(ylist[i])
+
+    plt.plot(group1x, group1y, 'ro', label="Group 0")
+    plt.plot(group2x, group2y, 'go', label="Group 1")
+    plt.plot(group3x, group3y, 'bo', label="Group 2")
+    plt.plot(group4x, group4y, 'yo', label="Group 3")
+    
+    plt.legend()
+    plt.show()
+
+
+
+
+
+
 
 
 
 # start = timer()
 
-# clustering_result = FBClustering.brute_force(
-#     X,
-#     # cluster_k=[4],
-#     scalers=[
-#         None,
-#         StandardScaler(), 
-#         RobustScaler(), 
-#         MinMaxScaler(), 
-#         MaxAbsScaler()
-#     ],
-# )
+from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans
+from sklearn.cluster import MeanShift
+from sklearn.cluster import DBSCAN
+
+clustering_result = FBClustering.auto_ml(
+    X,
+    cluster_k=[4],
+    models=[
+        KMeans(),
+        # GaussianMixture(),
+        # MeanShift(),
+        # DBSCAN()
+    ],
+    scalers=[
+        None,
+        StandardScaler(), 
+        RobustScaler(), 
+        MinMaxScaler(), 
+        MaxAbsScaler()
+    ],
+)
 
 # end = timer()
 # print("Execution time :", timedelta(seconds=end-start))
 
-# print(clustering_result.best_params)
-# print(clustering_result.best_score)
+print(clustering_result.best_params)
+print(clustering_result.best_score)
+print("===============================================================")
+
+
+
+# Convert for calculate clustering purity score
+yt = []
+ytt = y.tolist()
+for i in range(0, len(ytt)):
+    yt.append(ytt[i]-1)
+yp = clustering_result.labels.tolist()
+
+purity_result = FBClustering.purity_score(y_true=yt, y_pred=yp)
+
+print(purity_result)
+
+# 'Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating'
+
+
+
+plot_grid(dft.iloc[:,0], dft.iloc[:,3], yp, "Clustering Result", "Maximum Installs", "Rating Count")
+plot_grid(dft.iloc[:,0], dft.iloc[:,3], dft.iloc[:,4], "Clustering Result", "Maximum Installs", "Rating Count")
+
+
+    
 
 
 
 
 
-# start = timer()
 
-# clustering_result = FBClustering.auto_ml(
-#     X, 
-#     # cluster_k=[4],
-#     scalers=[
-#         None,
-#         StandardScaler(), 
-#         RobustScaler(), 
-#         MinMaxScaler(), 
-#         MaxAbsScaler()
-#     ],
-# )
 
-# end = timer()
-# print("Execution time :", timedelta(seconds=end-start))
+print("===============================================================")
 
-# print(clustering_result.best_params)
-# print(clustering_result.best_score)
+
+
+

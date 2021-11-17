@@ -157,6 +157,17 @@ def csv_to_dataframe(filename, columns = ['App Id','Developer Website','Develope
 
 
 
+    # """
+    # Binning (Rating) : There are values of 1-4
+    # x = Rating
+    # 1 : -0.1 <= x < 3.0
+    # 2 : 3.0 <= x < 5.1
+    # """
+
+    # bins = [-0.1, 3.0, 5.1]
+    # label = ['1', '2']
+
+
     """
     Binning (Rating) : There are values of 1-4
     x = Rating
