@@ -16,16 +16,13 @@ from datetime import timedelta
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-
-
 # df, dfs = csv_to_dataframe("./data/Google-Playstore.csv")
 # dfs.to_csv("dfs2.csv")
 # 테스트 시, 파일 읽기 속도 개선을 위해 미리 결과 출력 후 읽어옴
 dfs = pd.read_csv("./tmp/dfs4.csv", index_col=0)
 dfs.drop(["index"], axis=1, inplace=True) # 추가 정리
 
-print(dfs)
-print(dfs.info())
+
 
 
 # print(dfs['Category'].drop_duplicates().tolist())
@@ -69,7 +66,7 @@ print(content_rating_le.classes_)
 lbl_price = []
 print("=====Price=====")
 # ['Free', 'Low', 'Mid', 'High']
-for i in dfs["Price"]:  
+for i in dfs["Price"]:
 # print(dfs['Price'].drop_duplicates().tolist())
     if i == "Free": lbl_price.append(0)
     elif i == "Low": lbl_price.append(1)
@@ -106,7 +103,10 @@ print(price_list_le)
 
 
 # ===============================================================
-# ===============================================================
+X = dft.drop(["Rating"], axis=1)
+y = dft["Rating"]
+print(X)
+print(y)
 # ===============================================================
 
 
@@ -117,6 +117,7 @@ X = dft.drop(["Rating"], axis=1)
 y = dft["Rating"]
 print(X)
 print(y)
+
 
 
 print(dft.Rating.value_counts())
@@ -136,18 +137,20 @@ print(featureScores.nlargest(len(dft.columns)-1, 'Score'))
 # select top 4 best features
 dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','Rating']]
 
-# classifier_result = FBClassifier.auto_ml(
-#     X,
-#     dft["Rating"],
-#     models=[
-#         DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
-#         LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
-#         LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
-#         GaussianNB(),
-#         GradientBoostingClassifier()
-#     ],
-#     max_iter = 30,
-# )
+
+classifier_result = FBClassifier.auto_ml(
+    X,
+    dft["Rating"],
+    models=[
+        DecisionTreeClassifier(criterion="gini"), DecisionTreeClassifier(criterion="entropy"),
+        LogisticRegression(solver="lbfgs", max_iter=500, multi_class="ovr", class_weight='balanced'),
+        LogisticRegression(solver="lbfgs", max_iter=1000, multi_class="ovr", class_weight='balanced'),
+        GaussianNB(),
+        GradientBoostingClassifier()
+    ],
+
+)
+
 
 # print(classifier_result.best_params)
 # print('best score :', classifier_result.best_score)
@@ -156,6 +159,17 @@ dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','
 
 
 
+'''
+# Rating evaluation plot
+sns.set(style='whitegrid')
+
+sns.countplot(x='Rating',hue='Ad Supported',data=dft)
+sns.countplot(x='Rating',hue='In App Purchases',data=dft)
+sns.boxplot(x=count['Rating'], y=count['Maximum Installs'])
+sns.boxplot(x=count['Rating'], y=count['Rating Count'])
+
+plt.show()
+'''
 
 
 # # Plot Heatmap
@@ -176,6 +190,20 @@ dft = dft[['Maximum Installs','Ad Supported','In App Purchases','Rating Count','
 
 
 
+
+
+# clustering_result = FBClustering.brute_force(
+#     X,
+#     # cluster_k=[4],
+#     scalers=[
+#         None,
+#         StandardScaler(), 
+#         RobustScaler(), 
+#         MinMaxScaler(), 
+
+#         MaxAbsScaler()
+#     ],
+# )
 
 
 
