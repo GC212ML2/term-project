@@ -33,24 +33,13 @@ def clarans_label_converter(labels):
 
 
 
-# Purity check for latitude and longitude
-def purity_check(X, y_pred):
-
-# Make arbitrary target dataset to calculate score.
-# Seperating line to Northern and Souther california -> 35.773
-  y = np.array([], dtype=int)
-  for i in range(0, len(X)):
-    if X.iloc[i, 1] > 35.773:
-      y = np.append(y, [1])
-    else:
-      y = np.append(y, [0])
-  return purity_socre(y, y_pred)
 
 # Scoring function through purity check formula
-def purity_socre(y_true, y_pred):
+def purity_score(y_true, y_pred):
   # compute contingency matrix (also called confusion matrix)
   contingency_matrix = metrics.cluster.contingency_matrix(y_true, y_pred)
   return np.sum(np.amax(contingency_matrix, axis=0)) / np.sum(contingency_matrix)
+
 
 
 
@@ -61,7 +50,7 @@ def brute_force(
         KMeans(n_clusters = 2),
         DBSCAN(eps=0.5, min_samples=5)
     ],
-    cluster_k = [3],
+    cluster_k = [2,3,4,5,6,7,8,9,10],
 ):
     """
     Brute Force Search
@@ -80,9 +69,9 @@ def brute_force(
     - `models`: array
       - Model functions to clustering data. This can be modified by user.
       - KMeans, GaussianMixture, DBSCAN(eps=0.5, min_samples=5) as default with hyperparameters.
-      - This parameter is compatible with `KMeans, GaussianMixture, DBSCAN, CLARANS, MeanShift`.
+      - This parameter is compatible with `KMeans, DBSCAN`.
     - `cluster_k`: array
-      - The umber of cluster. Default value is [3].
+      - The umber of cluster. Default value is [2,3,4,5,6,7,8,9,10].
       - This can be modified by user.
 
     Returns
@@ -228,17 +217,8 @@ def brute_force(
     res.best_score = maxScore
     res.labels = labels_
 
-
     # Return value with dictionary type
     return res
-
-
-
-
-
-
-
-
 
 
 
@@ -251,7 +231,7 @@ def auto_ml(
         KMeans(n_clusters = 2),
         DBSCAN(eps=0.5, min_samples=5),
     ],
-    cluster_k = [2,3,4,5,6],
+    cluster_k = [2,3,4,5,6,7,8,9,10],
     thresh_score = None,
     max_iter = 50,
 ):
@@ -274,14 +254,14 @@ def auto_ml(
     - `models`: array
       - Model functions to clustering data. This can be modified by user.
       - KMeans, GaussianMixture, DBSCAN(eps=0.5, min_samples=5) as default with hyperparameters.
-      - This parameter is compatible with `KMeans, GaussianMixture, DBSCAN, CLARANS, MeanShift`.
+      - This parameter is compatible with `KMeans, DBSCAN`.
     - `cluster_k`: array
-      - The umber of cluster. Default value is [3].
+      - The umber of cluster. Default value is [2,3,4,5,6,7,8,9,10].
       - This can be modified by user.
     - `thresh_score`: float
       - Default is None. If, algorithm find the score what is higher than thresh_score, then stop and terminate searching.
     - `max_iter`: integer
-      - Default is 100. This is meaning that how many iterations in searching loop.
+      - Default is 50. This is meaning that how many iterations in searching loop.
 
     Returns
     ----------
@@ -397,6 +377,7 @@ def auto_ml(
         p2.cluster_k_idx = check_gradient(gradient_theta3, p1.cluster_k_idx, cluster_k_len)
 
 
+
         # 2. Calculate score(J(theta)) of each theta(point)
         p1_score = 0
         p2_score = 0
@@ -509,16 +490,14 @@ def auto_ml(
 
 
 
-
-
-        # Calcuate gradient
-        # 각 세타값에 대해 계산하고, 해당 기울기를 기준으로 다음 세타값을 잡음
+        # 3. Calcuate gradient of each theta(point).
+        #    with using above theta value, set another theta(point).
         change_of_cost = p2_score - p1_score
         change_of_theta1 = p2.scalers_idx - p1.scalers_idx
         change_of_theta2 = p2.models_idx - p1.models_idx
         change_of_theta3 = p2.cluster_k_idx - p1.cluster_k_idx
 
-        # 이전 지점과 같을 때, 0으로 처리
+        # If, attribute of theta1 and theta2 are same, set gradient value to 0 (slope = 0)
         def update_gradient_value(change_of_cost, change_of_theta):
             result_gradient = 0
             if change_of_theta != 0:
@@ -530,8 +509,7 @@ def auto_ml(
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
 
-
-        # Prepare for next gradient (change theta 1 to new position)
+        # 4. Prepare for next gradient (change theta 1 to new position)
         def set_new_point(gradient_theta, compare1, compare2):
             result_idx = 0
             if gradient_theta > 0:
@@ -543,13 +521,14 @@ def auto_ml(
             return result_idx
 
 
-
+        # Set new theta1 for the next calculation
         p1.scalers_idx = set_new_point(gradient_theta1, p1.scalers_idx, p2.scalers_idx)
         p1.models_idx = set_new_point(gradient_theta2, p1.models_idx, p2.models_idx)
         p1.cluster_k_idx = set_new_point(gradient_theta3, p1.cluster_k_idx, p2.cluster_k_idx)
 
 
 
+    # Return the result
     class res:
         best_params = {}
 
@@ -565,7 +544,7 @@ def auto_ml(
     res.best_score = max_score
     res.labels = best_labels
 
-    # Return value with dictionary type
+    # Return value with res class
     return res
 
 

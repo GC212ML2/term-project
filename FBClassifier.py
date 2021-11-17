@@ -319,7 +319,7 @@ def auto_ml(
     cv_k=[2,3,4,5,6,7,8,9,10],
     is_cv_shuffle = True,
     thresh_score = None,
-    max_iter = 100,
+    max_iter = 50,
 ):
     """
     Auto ML for Classifier
@@ -347,7 +347,7 @@ def auto_ml(
     - `thresh_score`
       - Default is None. If, algorithm find the score what is higher than thresh_score, then stop and terminate searching.
     - `max_iter`
-      - Default is 100. This is meaning that how many iterations in searching loop.
+      - Default is 50. This is meaning that how many iterations in searching loop.
 
     Returns
     ----------
@@ -422,6 +422,7 @@ def auto_ml(
         p2.cv_k_idx = check_gradient(gradient_theta3, p1.cv_k_idx, cv_k_len)
 
 
+
         # 2. Calculate score(J(theta)) of each theta(point)
         p1_score = 0
         p2_score = 0
@@ -472,14 +473,15 @@ def auto_ml(
         if thresh_score != None and max_score > thresh_score: break
 
 
-        # Calcuate gradient
-        # 각 세타값에 대해 계산하고, 해당 기울기를 기준으로 다음 세타값을 잡음
+
+        # 3. Calcuate gradient of each theta(point).
+        #    with using above theta value, set another theta(point).
         change_of_cost = p2_score - p1_score
         change_of_theta1 = p2.scalers_idx - p1.scalers_idx
         change_of_theta2 = p2.models_idx - p1.models_idx
         change_of_theta3 = p2.cv_k_idx - p1.cv_k_idx
 
-        # 이전 지점과 같을 때, 0으로 처리
+        # If, attribute of theta1 and theta2 are same, set gradient value to 0 (slope = 0)
         def update_gradient_value(change_of_cost, change_of_theta):
             result_gradient = 0
             if change_of_theta != 0:
@@ -491,8 +493,7 @@ def auto_ml(
         gradient_theta3 = update_gradient_value(change_of_cost, change_of_theta3)
 
 
-        # Prepare for next gradient (change theta 1 to new position)
-
+        # 4. Prepare for next gradient (change theta 1 to new position)
         def set_new_point(gradient_theta, compare1, compare2):
             result_idx = 0
             if gradient_theta > 0:
@@ -503,7 +504,7 @@ def auto_ml(
                 result_idx = compare1
             return result_idx
 
-
+        # Set new theta1 for the next calculation
         p1.scalers_idx = set_new_point(gradient_theta1, p1.scalers_idx, p2.scalers_idx)
         p1.models_idx = set_new_point(gradient_theta2, p1.models_idx, p2.models_idx)
         p1.cv_k_idx = set_new_point(gradient_theta3, p1.cv_k_idx, p2.cv_k_idx)

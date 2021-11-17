@@ -182,20 +182,46 @@ FBClassifier.plot_roc_curve(X, dft.Rating, classifier_result, classifier_result.
 
 
 
+# start = timer()
+
+# clustering_result = FBClustering.brute_force(
+#     X,
+#     # cluster_k=[4],
+#     scalers=[
+#         None,
+#         StandardScaler(), 
+#         RobustScaler(), 
+#         MinMaxScaler(), 
+#         MaxAbsScaler()
+#     ],
+# )
+
+# end = timer()
+# print("Execution time :", timedelta(seconds=end-start))
+
+# print(clustering_result.best_params)
+# print(clustering_result.best_score)
 
 
-# clustering_result = FBClustering.brute_force(X)
-clustering_result = FBClustering.auto_ml(
-    X, 
-    cluster_k=[4], 
-    scalers=[
-        None,
-        StandardScaler(), 
-        RobustScaler(), 
-        MinMaxScaler(), 
-        MaxAbsScaler()
-    ],
-)
-print(clustering_result.best_params)
-print(clustering_result.best_score)
 
+
+
+# start = timer()
+
+# clustering_result = FBClustering.auto_ml(
+#     X, 
+#     # cluster_k=[4],
+#     scalers=[
+#         None,
+#         StandardScaler(), 
+#         RobustScaler(), 
+#         MinMaxScaler(), 
+#         MaxAbsScaler()
+#     ],
+# )
+
+# end = timer()
+# print("Execution time :", timedelta(seconds=end-start))
+
+# print(clustering_result.best_params)
+# print(clustering_result.best_score)
