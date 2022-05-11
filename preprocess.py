@@ -19,10 +19,9 @@ def csv_to_dataframe(filename, columns=['App Id', 'Developer Website', 'Develope
     ### 1. Drop the unnecessary columns
     df = df.drop(columns=columns)
 
+
     ### 2. Drop the dirty values
     # Fill NaN of Rating & RatingCount with mean
-
-
     df['Rating']  = df['Rating'].astype(float)
     df['Rating'].dropna(inplace=True)
 
@@ -148,6 +147,7 @@ def csv_to_dataframe(filename, columns=['App Id', 'Developer Website', 'Develope
 
 
 
+    ## Selection part of binning style of Rating
 
     # """
     # Binning (Rating) : There are values of 1-4
@@ -155,11 +155,8 @@ def csv_to_dataframe(filename, columns=['App Id', 'Developer Website', 'Develope
     # 1 : -0.1 <= x < 3.0
     # 2 : 3.0 <= x < 5.1
     # """
-
     # bins = [-0.1, 3.0, 5.1]
     # label = ['1', '2']
-
-
 
     """
     Binning (Rating) : There are values of 1-4
@@ -169,19 +166,30 @@ def csv_to_dataframe(filename, columns=['App Id', 'Developer Website', 'Develope
     3 : 1.66 <= x < 3.33
     4 : 3.33 <= x < 5.1
     """
+    bins = [-0.1, 0.1, 1.66, 3.33, 5.1]
+    label = ['1', '2', '3', '4']
 
-    # bins = [-0.1, 0.1, 1.66, 3.33, 5.1]
-    # label = ['1', '2', '3', '4']
+    # """
+    # # Remove zero value
+    # Binning (Rating) : There are values of 1-3
+    # x = Rating
+    # 1 : 0.1 <= x < 1.66
+    # 2 : 1.66 <= x < 3.33
+    # 3 : 3.33 <= x < 5.1
+    # """
+    # bins = [0.1, 1.66, 3.33, 5.1]
+    # label = ['1', '2', '3']
+
 
     """
-        Binning (Rating) : There are values of 1-4
-        x = Rating
-        1 : -0.1 <= x < 3.0
-        2 : 3.0 <= x < 5.1
-        """
+    Binning (Rating) : There are values of 1-4
+    x = Rating
+    1 : -0.1 <= x < 3.0
+    2 : 3.0 <= x < 5.1
+    """
+    # bins = [-0.1, 3.0, 5.1]
+    # label = ['1', '2']
 
-    bins = [-0.1, 3.0, 5.1]
-    label = ['1', '2']
 
 
     binning = pd.cut(df['Rating'], bins, labels=label)
@@ -194,12 +202,14 @@ def csv_to_dataframe(filename, columns=['App Id', 'Developer Website', 'Develope
     df = df.drop('index', axis=1)
     df = df.astype({'Rating': 'int64'})
 
-    # Target = Rating
+    # Set the target to Rating
     target = ['Rating']
     X = df.drop(target, axis=1)
     y = df[target]
 
-    # 계층적 샘플링
+
+    
+    # Stratified Shuffle sampling
     split = StratifiedShuffleSplit(n_splits=1, test_size=0.01, random_state=0)
 
     for train_idx, test_idx in split.split(X, y):
